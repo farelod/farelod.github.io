@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>生肖与号码随机生成</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .section { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+    input { margin: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- 模块1：生肖生成 -->
+  <div class="section">
+    <h2>生肖随机生成</h2>
+    <label>不选的生肖（用 , 分隔）：</label>
+    <input type="text" id="excludedZodiacs" placeholder="如：猴,狗">
+    <br>
+    <label>要生成的数量：</label>
+    <input type="number" id="zodiacCount" value="6" min="1" max="12">
+    <button onclick="generateZodiacs()">生成生肖</button>
+    <p>生成结果：<span id="zodiacResult"></span></p>
+  </div>
+
+  <!-- 模块2：号码生成 -->
+  <div class="section">
+    <h2>号码随机生成（1~49）</h2>
+    <div id="excludeNumberInputs">
+      <input type="number" class="excludeNum" min="1" max="49" placeholder="排除号码1">
+    </div>
+    <button onclick="addExcludeInput()">➕ 添加排除号码</button>
+    <br><br>
+    <label>要生成的数量：</label>
+    <input type="number" id="numberCount" value="6" min="1" max="49">
+    <button onclick="generateNumbers()">生成号码</button>
+    <p>生成结果：<span id="numberResult"></span></p>
+  </div>
+
+  <script>
+    // 生肖数据
+    const zodiacs = [
+      "鼠", "牛", "虎", "兔", "龙", "蛇",
+      "马", "羊", "猴", "鸡", "狗", "猪"
+    ];
+
+    // 对应号码映射
+    const zodiacMap = {
+      "鼠": [6, 18, 30, 42],
+      "牛": [5, 17, 29, 41],
+      "虎": [4, 16, 28, 40],
+      "兔": [3, 15, 27, 39],
+      "龙": [2, 14, 26, 38],
+      "蛇": [1, 13, 25, 37, 49],
+      "马": [12, 24, 36, 48],
+      "羊": [11, 23, 35, 47],
+      "猴": [10, 22, 34, 46],
+      "鸡": [9, 21, 33, 45],
+      "狗": [8, 20, 32, 44],
+      "猪": [7, 19, 31, 43]
+    };
+
+    // 工具函数：打乱数组
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    // 生成生肖
+    function generateZodiacs() {
+      const excludeStr = document.getElementById("excludedZodiacs").value.trim();
+      const count = parseInt(document.getElementById("zodiacCount").value);
+      const excludes = excludeStr ? excludeStr.split(",").map(s => s.trim()) : [];
+
+      const available = zodiacs.filter(z => !excludes.includes(z));
+
+      if (count > available.length) {
+        document.getElementById("zodiacResult").innerText = `排除后仅剩 ${available.length} 个可选生肖，不能生成 ${count} 个`;
+        return;
+      }
+
+      const result = shuffle(available).slice(0, count);
+      document.getElementById("zodiacResult").innerText = result.join(", ");
+    }
+
+    // 添加排除号码输入框
+    function addExcludeInput() {
+      const container = document.getElementById("excludeNumberInputs");
+      const input = document.createElement("input");
+      input.type = "number";
+      input.className = "excludeNum";
+      input.min = "1";
+      input.max = "49";
+      input.placeholder = `排除号码${container.children.length + 1}`;
+      container.appendChild(input);
+    }
+
+    // 生成号码
+    function generateNumbers() {
+      const inputs = document.querySelectorAll(".excludeNum");
+      const excludeNums = Array.from(inputs)
+        .map(i => parseInt(i.value))
+        .filter(n => !isNaN(n) && n >= 1 && n <= 49);
+
+      const count = parseInt(document.getElementById("numberCount").value);
+      const pool = [];
+
+      for (let i = 1; i <= 49; i++) {
+        if (!excludeNums.includes(i)) pool.push(i);
+      }
+
+      if (count > pool.length) {
+        document.getElementById("numberResult").innerText = `排除后仅剩 ${pool.length} 个号码，不能生成 ${count} 个`;
+        return;
+      }
+
+      const result = shuffle(pool).slice(0, count);
+      document.getElementById("numberResult").innerText = result.sort((a, b) => a - b).join(", ");
+    }
+  </script>
+
+</body>
+</html>
